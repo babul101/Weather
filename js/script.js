@@ -1,28 +1,92 @@
 let searchInp = document.querySelector(".weather__search");
 let city = document.querySelector(".weather__city");
 let day = document.querySelector(".weather__day");
+let desc = document.querySelector(".weather__day weather-description");
 let humidity = document.querySelector(".weather__indicator--humidity>.value");
 let wind = document.querySelector(".weather__indicator--wind>.value");
 let pressure = document.querySelector(".weather__indicator--pressure>.value");
 let image = document.querySelector(".weather__image");
 let temperature = document.querySelector(".weather__temperature>.value");
-
+let forecastBlock = document.querySelector(".weather__forecast");
 let weatherApiKey = "a5aaed97d516398c3d6e80326f9de7d0";
 let rootUrl =
   "https://api.openweathermap.org/data/2.5/weather?units=metric&appid=" +
   weatherApiKey;
+let forecastRootUrl =
+  "https://api.openweathermap.org/data/2.5/forecast?units=metric&appid=" +
+  weatherApiKey;
+
+let weatherImages = [
+  {
+    url: "images/sunny.png",
+    ids: [800],
+  },
+  {
+    url: "images/broken-clouds.png",
+    ids: [803, 804],
+  },
+  {
+    url: "images/few-clouds.png",
+    ids: [801],
+  },
+  {
+    url: "images/mist.png",
+    ids: [701, 711, 721, 731, 741, 751, 761, 762, 771, 781],
+  },
+  {
+    url: "images/rain.png",
+    ids: [500, 501, 502, 503, 504],
+  },
+  {
+    url: "images/scattered-clouds.png",
+    ids: [802],
+  },
+  {
+    url: "images/shower-rain.png",
+    ids: [520, 521, 522, 531, 300, 301, 302, 310, 311, 312, 313, 314, 321],
+  },
+  {
+    url: "images/snow.png",
+    ids: [511, 600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
+  },
+  {
+    url: "images/thnderstorm.png",
+    ids: [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
+  },
+];
 
 let getWeatherByCity = async (city) => {
   let endpoint = rootUrl + "&q=" + city;
   let response = await fetch(endpoint);
   let weather = await response.json();
+
   return weather;
+};
+
+let getForecastByCityId = async (id) => {
+  let endpoint = forecastRootUrl + "&id=" + id;
+  let result = await fetch(endpoint);
+  let forecast = await result.json();
+  let forecastList = forecast.list;
+  let daily = [];
+
+  forecastList.forEach((day) => {
+    let date = new Date(day.dt_txt.replace(" ", "T"));
+    let hours = date.getHours();
+    if (hours === 12) {
+      daily.push(day);
+    }
+  });
+  return daily;
 };
 
 searchInp.addEventListener("keydown", async (e) => {
   if (e.keyCode === 13) {
     let weather = await getWeatherByCity(searchInp.value);
+    let cityId = weather.id;
     updateCurrentWeather(weather);
+    let forecast = await getForecastByCityId(cityId);
+    updateForecast(forecast);
   }
 });
 
@@ -32,6 +96,7 @@ let updateCurrentWeather = (data) => {
   day.textContent = dayOfWeek();
   humidity.textContent = data.main.humidity;
   pressure.textContent = data.main.pressure;
+  //   desc.textContent = data.main.description;
   let windDirection;
   let deg = data.wind.deg;
   if (deg > 45 && deg <= 135) {
@@ -45,9 +110,35 @@ let updateCurrentWeather = (data) => {
   }
   wind.textContent = windDirection + ", " + data.wind.speed;
   temperature.textContent =
-    data.main.temp > 0 ? "+" + data.main.temp : data.main.temp;
+    data.main.temp > 0 ? +data.main.temp : data.main.temp;
+
+  let imgID = data.weather[0].id;
+  weatherImages.forEach((obj) => {
+    if (obj.ids.includes(imgID)) {
+      image.src = obj.url;
+    }
+  });
 };
 
-let dayOfWeek = () => {
-  return new Date().toLocaleDateString("en-EN", { weekday: "long" });
+let updateForecast = (forecast) => {
+  forecastBlock.innerHTML = "";
+  forecast.forEach((day) => {
+    let iconUrl =
+      "http://openweathermap.org/img/wn/" + day.weather[0].icon + "@2x.png";
+    let dayName = dayOfWeek(day.dt * 1000);
+    let temperature = day.main.temp > 0 ? day.main.temp : day.main.temp;
+    let forecastItem = `
+            <article class="weather__forecast__item">
+                <img src="${iconUrl}" alt="${day.weather[0].description}" class="weather__forecast__icon">
+                <h3 class="weather__forecast__day">${dayName}</h3>
+                <p class="weather__forecast__temperature"><span class="value">${temperature}</span> &deg;C</p>
+                <p>${day.weather[0].description}</p>
+            </article>
+        `;
+    forecastBlock.insertAdjacentHTML("beforeend", forecastItem);
+  });
+};
+
+let dayOfWeek = (dt = new Date().getTime()) => {
+  return new Date(dt).toLocaleDateString("en-EN", { weekday: "long" });
 };
