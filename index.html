@@ -10,7 +10,13 @@
   </head>
   <body>
     <div class="weather">
-      <input type="search" placeholder="Your City" class="weather__search" />
+      <input
+        type="search"
+        list="suggestions"
+        placeholder="Your City"
+        class="weather__search"
+      />
+      <datalist id="suggestions"> </datalist>
       <div class="weather__today">
         <div class="weather__details">
           <h2 class="weather__city">City</h2>
@@ -25,12 +31,12 @@
             <p class="weather__indicator weather__indicator--pressure">
               <span class="value">1050</span> hPa
             </p>
-            <p class="weather__day weather-description">Clear sky</p>
+            <!-- <p class="weather__day weather-description">Clear sky</p> -->
           </div>
         </div>
         <img src="images/sunny.png" alt="Clear sky" class="weather__image" />
         <div class="weather__temperature">
-          <span class="value">+25</span>&deg;C
+          <span class="value">25</span>&deg;C
         </div>
       </div>
       <div class="weather__forecast">
@@ -42,7 +48,7 @@
           />
           <h3 class="weather__forecast__day">Day</h3>
           <p class="weather__forecast__temperature">
-            <span class="value">+25</span>&deg;C
+            <span class="value">25</span>&deg;C
           </p>
         </article>
         <article class="weather__forecast__item">
@@ -53,7 +59,7 @@
           />
           <h3 class="weather__forecast__day">Day</h3>
           <p class="weather__forecast__temperature">
-            <span class="value">+25</span>&deg;C
+            <span class="value">25</span>&deg;C
           </p>
         </article>
         <article class="weather__forecast__item">
@@ -64,7 +70,7 @@
           />
           <h3 class="weather__forecast__day">Day</h3>
           <p class="weather__forecast__temperature">
-            <span class="value">+25</span>&deg;C
+            <span class="value">25</span>&deg;C
           </p>
         </article>
         <article class="weather__forecast__item">
@@ -75,7 +81,7 @@
           />
           <h3 class="weather__forecast__day">Day</h3>
           <p class="weather__forecast__temperature">
-            <span class="value">+25</span>&deg;C
+            <span class="value">25</span>&deg;C
           </p>
         </article>
         <article class="weather__forecast__item">
@@ -86,7 +92,7 @@
           />
           <h3 class="weather__forecast__day">Day</h3>
           <p class="weather__forecast__temperature">
-            <span class="value">+25</span>&deg;C
+            <span class="value">25</span>&deg;C
           </p>
         </article>
       </div>

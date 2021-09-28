@@ -8,6 +8,7 @@ let pressure = document.querySelector(".weather__indicator--pressure>.value");
 let image = document.querySelector(".weather__image");
 let temperature = document.querySelector(".weather__temperature>.value");
 let forecastBlock = document.querySelector(".weather__forecast");
+let suggestions = document.querySelector("#suggestions");
 let weatherApiKey = "a5aaed97d516398c3d6e80326f9de7d0";
 let rootUrl =
   "https://api.openweathermap.org/data/2.5/weather?units=metric&appid=" +
@@ -15,6 +16,8 @@ let rootUrl =
 let forecastRootUrl =
   "https://api.openweathermap.org/data/2.5/forecast?units=metric&appid=" +
   weatherApiKey;
+
+let cityRootUrl = "https://api.teleport.org/api/cities/?search=";
 
 let weatherImages = [
   {
@@ -80,6 +83,21 @@ let getForecastByCityId = async (id) => {
   return daily;
 };
 
+// let weatherForCity = async (city) => {
+//   let weather = await getWeatherByCityName(city);
+//   if (!weather) {
+//     return;
+//   }
+//   let cityID = weather.id;
+//   updateCurrentWeather(weather);
+//   let forecast = await getForecastByCityID(cityID);
+//   updateForecast(forecast);
+// };
+// let init = () => {
+//   weatherForCity("Dubai").then(() => (document.body.style.filter = "blur(0)"));
+// };
+// init();
+
 searchInp.addEventListener("keydown", async (e) => {
   if (e.keyCode === 13) {
     let weather = await getWeatherByCity(searchInp.value);
@@ -90,8 +108,20 @@ searchInp.addEventListener("keydown", async (e) => {
   }
 });
 
+searchInp.addEventListener("input", async () => {
+  let endpoint = cityRootUrl + searchInp.value;
+  let result = await (await fetch(endpoint)).json();
+  suggestions.innerHTML = "";
+  let cities = result._embedded["city:search-results"];
+  let length = cities.length > 5 ? 5 : cities.length;
+  for (let i = 0; i < length; i++) {
+    let option = document.createElement("option");
+    option.value = cities[i].matching_full_name;
+    suggestions.appendChild(option);
+  }
+});
+
 let updateCurrentWeather = (data) => {
-  console.log(data);
   city.textContent = data.name + ", " + data.sys.country;
   day.textContent = dayOfWeek();
   humidity.textContent = data.main.humidity;
