@@ -58,9 +58,21 @@ let weatherImages = [
   },
 ];
 
-let getWeatherByCity = async (city) => {
+let getWeatherByCity = async (cityString) => {
+  let city;
+  if (cityString.includes(",")) {
+    city =
+      cityString.substring(0, cityString.indexOf(",")) +
+      cityString.substring(cityString.lastIndexOf(","));
+  } else {
+    city = cityString;
+  }
   let endpoint = rootUrl + "&q=" + city;
   let response = await fetch(endpoint);
+  if (response.status !== 200) {
+    alert("City Not Found");
+    return;
+  }
   let weather = await response.json();
 
   return weather;
@@ -83,24 +95,27 @@ let getForecastByCityId = async (id) => {
   return daily;
 };
 
-// let weatherForCity = async (city) => {
-//   let weather = await getWeatherByCityName(city);
-//   if (!weather) {
-//     return;
-//   }
-//   let cityID = weather.id;
-//   updateCurrentWeather(weather);
-//   let forecast = await getForecastByCityID(cityID);
-//   updateForecast(forecast);
-// };
-// let init = () => {
-//   weatherForCity("Dubai").then(() => (document.body.style.filter = "blur(0)"));
-// };
-// init();
+let weatherForCity = async (city) => {
+  let weather = await getWeatherByCity(city);
+  if (!weather) {
+    return;
+  }
+  let cityID = weather.id;
+  updateCurrentWeather(weather);
+  let forecast = await getForecastByCityId(cityID);
+  updateForecast(forecast);
+};
+let init = () => {
+  weatherForCity("Dubai").then(() => (document.body.style.filter = "blur(0)"));
+};
+init();
 
 searchInp.addEventListener("keydown", async (e) => {
   if (e.keyCode === 13) {
     let weather = await getWeatherByCity(searchInp.value);
+    if (!weather) {
+      return;
+    }
     let cityId = weather.id;
     updateCurrentWeather(weather);
     let forecast = await getForecastByCityId(cityId);
